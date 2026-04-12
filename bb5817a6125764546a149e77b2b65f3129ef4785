@@ -1,0 +1,53 @@
+.please/docs/product-specs/index.md
+  ea3f3186f6c89df8 1-6
+.please/docs/knowledge/product-guidelines.md
+  ea3f3186f6c89df8 1-28
+ARCHITECTURE.md
+  ea3f3186f6c89df8 1-112
+.please/docs/tracks/active/ai-sdk-provider-integration-20260412/metadata.json
+  ea3f3186f6c89df8 1-11
+.please/docs/tracks/tech-debt-tracker.md
+  ea3f3186f6c89df8 1-13
+CLAUDE.md
+  ea3f3186f6c89df8 1-23
+.please/docs/tracks.jsonl
+  ea3f3186f6c89df8 1
+.please/docs/knowledge/tech-stack.md
+  ea3f3186f6c89df8 1-51
+.please/docs/decisions/index.md
+  ea3f3186f6c89df8 1-6
+.please/docs/tracks/active/ai-sdk-provider-integration-20260412/plan.md
+  ea3f3186f6c89df8 1-3
+.please/INDEX.md
+  ea3f3186f6c89df8 1-35
+.gitignore
+  ea3f3186f6c89df8 4-6
+.please/config.yml
+  ea3f3186f6c89df8 1-26
+.please/docs/knowledge/workflow.md
+  ea3f3186f6c89df8 1-135
+.please/docs/knowledge/product.md
+  ea3f3186f6c89df8 1-23
+.please/docs/tracks/active/ai-sdk-provider-integration-20260412/spec.md
+  ea3f3186f6c89df8 1-24
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8",
+  "base_commit_sha": "bb5817a6125764546a149e77b2b65f3129ef4785",
+  "prompts": {
+    "ea3f3186f6c89df8": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f4408831-a08b-402f-9907-df08c4ab735b",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee",
+      "messages": [],
+      "total_additions": 505,
+      "total_deletions": 5,
+      "accepted_lines": 40631,
+      "overriden_lines": 0
+    }
+  }
+}
