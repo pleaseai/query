@@ -3,13 +3,13 @@
 ## Code Style
 - **Language**: TypeScript (strict mode), ESM modules
 - **Runtime**: Bun (primary), Node.js >= 22 (compatible)
-- **Formatting**: Follow existing qmd conventions — no semicolons in imports, 2-space indent
+- **Formatting**: Follow existing query conventions — no semicolons in imports, 2-space indent
 - **Naming**: camelCase for functions/variables, PascalCase for types/classes, kebab-case for files
 
 ## API Design Principles
 - **Provider-agnostic**: All LLM operations go through the `LLMProvider` interface — never import provider-specific code in core modules
 - **AI SDK first**: Default to Vercel AI SDK for embedding, reranking, and generation; local models (node-llama-cpp) as optional fallback
-- **Backward compatible**: Maintain qmd's public SDK API (`createStore`, `QMDStore`) so existing consumers can migrate
+- **Backward compatible**: Maintain query's public SDK API (`createStore`, `QueryStore`) so existing consumers can migrate
 - **Explicit over magic**: Require explicit provider configuration rather than auto-detecting models
 
 ## Documentation

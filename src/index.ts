@@ -1,8 +1,8 @@
 /**
- * QMD SDK - Library mode for programmatic access to QMD search and indexing.
+ * Query SDK - Library mode for programmatic access to Query search and indexing.
  *
  * Usage:
- *   import { createStore } from '@tobilu/qmd'
+ *   import { createStore } from '@pleaseai/query'
  *
  *   const store = await createStore({
  *     dbPath: './my-index.sqlite',
@@ -191,7 +191,7 @@ export interface ExpandQueryOptions {
 }
 
 /**
- * Options for creating a QMD store.
+ * Options for creating a Query store.
  *
  * Provide `dbPath` and optionally `configPath` (YAML file) or `config` (inline).
  * If neither configPath nor config is provided, the store reads from existing
@@ -207,13 +207,13 @@ export interface StoreOptions {
 }
 
 /**
- * The QMD SDK store — provides search, retrieval, collection management,
+ * The Query SDK store — provides search, retrieval, collection management,
  * context management, and indexing operations.
  *
  * All methods are async. The store manages its own LlamaCpp instance
  * (lazy-loaded, auto-unloaded after inactivity) — no global singletons.
  */
-export interface QMDStore {
+export interface QueryStore {
   /** The underlying internal store (for advanced use) */
   readonly internal: InternalStore;
   /** Path to the SQLite database */
@@ -311,14 +311,14 @@ export interface QMDStore {
 }
 
 /**
- * Create a QMD store for programmatic access to search and indexing.
+ * Create a Query store for programmatic access to search and indexing.
  *
  * @example
  * ```typescript
  * // With a YAML config file
  * const store = await createStore({
  *   dbPath: './index.sqlite',
- *   configPath: './qmd.yml',
+ *   configPath: './query.yml',
  * })
  *
  * // With inline config (no files needed besides the DB)
@@ -335,7 +335,7 @@ export interface QMDStore {
  * await store.close()
  * ```
  */
-export async function createStore(options: StoreOptions): Promise<QMDStore> {
+export async function createStore(options: StoreOptions): Promise<QueryStore> {
   if (!options.dbPath) {
     throw new Error("dbPath is required");
   }
@@ -376,7 +376,7 @@ export async function createStore(options: StoreOptions): Promise<QMDStore> {
   });
   internal.llm = llm;
 
-  const store: QMDStore = {
+  const store: QueryStore = {
     internal,
     dbPath: internal.dbPath,
 

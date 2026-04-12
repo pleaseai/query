@@ -1,5 +1,5 @@
 /**
- * Scoring functions for the QMD benchmark harness.
+ * Scoring functions for the Query benchmark harness.
  *
  * Computes precision@k, recall, MRR, and F1 for search results
  * against ground-truth expected files.
@@ -7,12 +7,12 @@
 
 /**
  * Normalize a file path for comparison.
- * Strips qmd:// prefix, lowercases, removes leading/trailing slashes.
+ * Strips query:// prefix, lowercases, removes leading/trailing slashes.
  */
 export function normalizePath(p: string): string {
-  if (p.startsWith("qmd://")) {
-    // qmd://collection/path/to/file → path/to/file
-    const withoutScheme = p.slice("qmd://".length);
+  if (p.startsWith("query://")) {
+    // query://collection/path/to/file → path/to/file
+    const withoutScheme = p.slice("query://".length);
     const slashIdx = withoutScheme.indexOf("/");
     p = slashIdx >= 0 ? withoutScheme.slice(slashIdx + 1) : withoutScheme;
   }

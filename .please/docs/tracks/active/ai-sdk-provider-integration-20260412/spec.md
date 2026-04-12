@@ -20,5 +20,5 @@ Wire up the AISDKProvider as a first-class LLM backend alongside the existing no
 - SC-1: AISDKProvider passes all embedding tests with a mock provider
 - SC-2: AISDKProvider passes all reranking tests with a mock provider
 - SC-3: createStore() works with AISDKProvider configuration
-- SC-4: Existing qmd test suite continues to pass
+- SC-4: Existing query test suite continues to pass
 - SC-5: TypeScript compiles without errors

@@ -22,9 +22,9 @@ Dependencies flow downward only. Lower layers must not import upper layers.
 
 ```
 ┌─────────────────────────────────────────┐
-│           Interface Layer               │  CLI (cli/qmd.ts), MCP Server (mcp/server.ts)
+│           Interface Layer               │  CLI (cli/query.ts), MCP Server (mcp/server.ts)
 ├─────────────────────────────────────────┤
-│           SDK Layer                     │  index.ts (QMDStore — public API wrapper)
+│           SDK Layer                     │  index.ts (QueryStore — public API wrapper)
 ├─────────────────────────────────────────┤
 │           Core Layer                    │  store.ts (search, indexing, chunking, fusion)
 ├─────────────────────────────────────────┤
@@ -45,7 +45,7 @@ For understanding the search pipeline:
 
 For understanding the public API:
 
-- `src/index.ts` — SDK wrapper: `createStore()` factory, `QMDStore` interface, and all re-exported types. This is the library entry point.
+- `src/index.ts` — SDK wrapper: `createStore()` factory, `QueryStore` interface, and all re-exported types. This is the library entry point.
 
 For understanding AI SDK integration:
 
@@ -54,7 +54,7 @@ For understanding AI SDK integration:
 
 For understanding the CLI:
 
-- `src/cli/qmd.ts` — Full CLI: collection management, search commands, embedding, MCP server launch, status display.
+- `src/cli/query.ts` — Full CLI: collection management, search commands, embedding, MCP server launch, status display.
 
 ## Module Reference
 
@@ -63,11 +63,11 @@ For understanding the CLI:
 | `src/store.ts` | Search engine core: indexing, chunking, BM25, vector search, RRF fusion, reranking | `store.ts` | `db`, `llm`, `collections`, `ast` | `index`, `cli`, `mcp` |
 | `src/llm.ts` | LLM abstraction: embedding, generation, reranking via node-llama-cpp | `llm.ts` | `node-llama-cpp` | `store`, `cli` |
 | `src/providers/` | AI SDK provider: cloud-based embedding, reranking, generation | `ai-sdk-provider.ts`, `types.ts` | `ai` (Vercel AI SDK) | `llm` (planned) |
-| `src/index.ts` | SDK public API: `QMDStore` wrapper with async methods | `index.ts` | `store`, `llm`, `collections` | `cli`, `mcp`, `bench` |
+| `src/index.ts` | SDK public API: `QueryStore` wrapper with async methods | `index.ts` | `store`, `llm`, `collections` | `cli`, `mcp`, `bench` |
 | `src/db.ts` | SQLite compatibility layer: Bun/Node.js, sqlite-vec extension loading | `db.ts` | `better-sqlite3`, `sqlite-vec` | `store` |
 | `src/collections.ts` | Collection & context config: YAML parsing, path management | `collections.ts` | `yaml` | `store`, `index`, `cli` |
 | `src/ast.ts` | AST-aware chunking: tree-sitter parsing for code files | `ast.ts` | `web-tree-sitter` | `store` |
-| `src/cli/` | CLI interface: commands, output formatting, interactive display | `qmd.ts`, `formatter.ts` | `index`, `llm`, `collections` | — |
+| `src/cli/` | CLI interface: commands, output formatting, interactive display | `query.ts`, `formatter.ts` | `index`, `llm`, `collections` | — |
 | `src/mcp/` | MCP server: stdio + HTTP transport for AI agent integration | `server.ts` | `index`, `@modelcontextprotocol/sdk` | — |
 | `src/bench/` | Benchmark harness: search quality metrics (precision, recall, MRR) | `bench.ts`, `score.ts` | `index` | `cli` |
 | `src/maintenance.ts` | Database housekeeping: vacuum, orphan cleanup | `maintenance.ts` | `db` | `index`, `cli` |
@@ -88,23 +88,23 @@ For understanding the CLI:
 
 **Error handling**: Provider errors (network failures, API limits) return `null` from LLM methods — callers handle gracefully (skip reranking, fall back to BM25-only). CLI errors go to stderr. Process exits with code 1 on fatal errors.
 
-**Logging**: Minimal — stderr for warnings/errors only. No logging framework. `QMD_LLAMA_GPU` and similar env vars emit warnings on invalid values. Production mode (`enableProductionMode()`) suppresses verbose output.
+**Logging**: Minimal — stderr for warnings/errors only. No logging framework. `QUERY_LLAMA_GPU` and similar env vars emit warnings on invalid values. Production mode (`enableProductionMode()`) suppresses verbose output.
 
 **Testing**: Vitest for unit/integration tests. Benchmark fixtures (`src/bench/fixtures/`) for search quality regression. Target >80% coverage for new code.
 
-**Configuration**: YAML config files for collections (`qmd.yml`), environment variables for model overrides (`QMD_EMBED_MODEL`, `QMD_RERANK_MODEL`, `QMD_GENERATE_MODEL`), SQLite `store_collections` table as source of truth at runtime.
+**Configuration**: YAML config files for collections (`query.yml`), environment variables for model overrides (`QUERY_EMBED_MODEL`, `QUERY_RERANK_MODEL`, `QUERY_GENERATE_MODEL`), SQLite `store_collections` table as source of truth at runtime.
 
 **Caching**: LLM responses (query expansion, rerank scores) cached in `llm_cache` SQLite table keyed by content hash. Embedding/reranking contexts auto-disposed after 5 min idle to free VRAM.
 
 ## Quality Notes
 
-**Well-tested**: `src/bench/` has scoring logic with fixtures. Search quality can be measured via `qmd bench`. The core search pipeline in `store.ts` is battle-tested from qmd.
+**Well-tested**: `src/bench/` has scoring logic with fixtures. Search quality can be measured via `query bench`. The core search pipeline in `store.ts` is battle-tested from query.
 
 **Fragile**: `src/store.ts` is 4700+ lines — a monolith containing search, indexing, chunking, and database operations. Refactoring should be done carefully with integration tests.
 
 **Technical debt**:
 - AI SDK provider (`src/providers/`) is implemented but not yet wired into `createStore()` — currently only accessible by manually configuring `LlamaCpp.setProvider()`
-- MCP server references `QMDStore` (SDK wrapper) but some method signatures don't match the raw `Store` type
+- MCP server references `QueryStore` (SDK wrapper) but some method signatures don't match the raw `Store` type
 - `bench-rerank.ts` and `test-preload.ts` excluded from tsconfig due to Bun-specific imports
 
 ---

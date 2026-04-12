@@ -1,5 +1,5 @@
 {
-  "name": "@anthropos/query",
+  "name": "@pleaseai/query",
   "version": "0.1.0",
   "description": "Hybrid search engine with AI SDK integration for embedding, reranking, and query expansion",
   "type": "module",

@@ -63,7 +63,7 @@ export function openDatabase(path: string): Database {
 }
 
 /**
- * Common subset of the Database interface used throughout QMD.
+ * Common subset of the Database interface used throughout Query.
  */
 export interface Database {
   exec(sql: string): void;
@@ -89,7 +89,7 @@ export function loadSqliteVec(db: Database): void {
   if (!_sqliteVecLoad) {
     const hint = isBun && process.platform === "darwin"
       ? "On macOS with Bun, install Homebrew SQLite: brew install sqlite\n" +
-        "Or install qmd with npm instead: npm install -g @tobilu/qmd"
+        "Or install query with npm instead: npm install -g @pleaseai/query"
       : "Ensure the sqlite-vec native module is installed correctly.";
     throw new Error(`sqlite-vec extension is unavailable. ${hint}`);
   }

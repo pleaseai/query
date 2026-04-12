@@ -1,8 +1,8 @@
 /**
- * QMD MCP Server - Model Context Protocol server for QMD
+ * Query MCP Server - Model Context Protocol server for Query
  *
- * Exposes QMD search and document retrieval as MCP tools and resources.
- * Documents are accessible via qmd:// URIs.
+ * Exposes Query search and document retrieval as MCP tools and resources.
+ * Documents are accessible via query:// URIs.
  *
  * Follows MCP spec 2025-06-18 for proper response types.
  */
@@ -25,7 +25,7 @@ import {
   addLineNumbers,
   getDefaultDbPath,
   DEFAULT_MULTI_GET_MAX_BYTES,
-  type QMDStore,
+  type QueryStore,
   type ExpandedQuery,
   type IndexStatus,
 } from "../index.js";
@@ -65,10 +65,10 @@ type StatusResult = {
 // =============================================================================
 
 /**
- * Encode a path for use in qmd:// URIs.
+ * Encode a path for use in query:// URIs.
  * Encodes special characters but preserves forward slashes for readability.
  */
-function encodeQmdPath(path: string): string {
+function encodeQueryPath(path: string): string {
   // Encode each path segment separately to preserve slashes
   return path.split('/').map(segment => encodeURIComponent(segment)).join('/');
 }
@@ -106,14 +106,14 @@ function getPackageVersion(): string {
  * Injected into the LLM's system prompt via MCP initialize response —
  * gives the LLM immediate context about what's searchable without a tool call.
  */
-async function buildInstructions(store: QMDStore): Promise<string> {
+async function buildInstructions(store: QueryStore): Promise<string> {
   const status = await store.getStatus();
   const contexts = await store.listContexts();
   const globalCtx = await store.getGlobalContext();
   const lines: string[] = [];
 
   // --- What is this? ---
-  lines.push(`QMD is your local search engine over ${status.totalDocuments} markdown documents.`);
+  lines.push(`Query is your local search engine over ${status.totalDocuments} markdown documents.`);
   if (globalCtx) lines.push(`Context: ${globalCtx}`);
 
   // --- What's searchable? ---
@@ -131,10 +131,10 @@ async function buildInstructions(store: QMDStore): Promise<string> {
   // --- Capability gaps ---
   if (!status.hasVectorIndex) {
     lines.push("");
-    lines.push("Note: No vector embeddings yet. Run `qmd embed` to enable semantic search (vec/hyde).");
+    lines.push("Note: No vector embeddings yet. Run `query embed` to enable semantic search (vec/hyde).");
   } else if (status.needsEmbedding > 0) {
     lines.push("");
-    lines.push(`Note: ${status.needsEmbedding} documents need embedding. Run \`qmd embed\` to update.`);
+    lines.push(`Note: ${status.needsEmbedding} documents need embedding. Run \`query embed\` to update.`);
   }
 
   // --- Search tool ---
@@ -169,12 +169,12 @@ async function buildInstructions(store: QMDStore): Promise<string> {
 }
 
 /**
- * Create an MCP server with all QMD tools, resources, and prompts registered.
+ * Create an MCP server with all Query tools, resources, and prompts registered.
  * Shared by both stdio and HTTP transports.
  */
-async function createMcpServer(store: QMDStore): Promise<McpServer> {
+async function createMcpServer(store: QueryStore): Promise<McpServer> {
   const server = new McpServer(
-    { name: "qmd", version: getPackageVersion() },
+    { name: "query", version: getPackageVersion() },
     { instructions: await buildInstructions(store) },
   );
 
@@ -182,16 +182,16 @@ async function createMcpServer(store: QMDStore): Promise<McpServer> {
   const defaultCollectionNames = await store.getDefaultCollectionNames();
 
   // ---------------------------------------------------------------------------
-  // Resource: qmd://{path} - read-only access to documents by path
+  // Resource: query://{path} - read-only access to documents by path
   // Note: No list() - documents are discovered via search tools
   // ---------------------------------------------------------------------------
 
   server.registerResource(
     "document",
-    new ResourceTemplate("qmd://{+path}", { list: undefined }),
+    new ResourceTemplate("query://{+path}", { list: undefined }),
     {
-      title: "QMD Document",
-      description: "A markdown document from your QMD knowledge base. Use search tools to discover documents.",
+      title: "Query Document",
+      description: "A markdown document from your Query knowledge base. Use search tools to discover documents.",
       mimeType: "text/markdown",
     },
     async (uri, { path }) => {
@@ -362,7 +362,7 @@ Intent-aware lex (C++ performance, not sports):
   );
 
   // ---------------------------------------------------------------------------
-  // Tool: qmd_get (Retrieve document)
+  // Tool: query_get (Retrieve document)
   // ---------------------------------------------------------------------------
 
   server.registerTool(
@@ -415,7 +415,7 @@ Intent-aware lex (C++ performance, not sports):
         content: [{
           type: "resource",
           resource: {
-            uri: `qmd://${encodeQmdPath(result.displayPath)}`,
+            uri: `query://${encodeQueryPath(result.displayPath)}`,
             name: result.displayPath,
             title: result.title,
             mimeType: "text/markdown",
@@ -427,7 +427,7 @@ Intent-aware lex (C++ performance, not sports):
   );
 
   // ---------------------------------------------------------------------------
-  // Tool: qmd_multi_get (Retrieve multiple documents)
+  // Tool: query_multi_get (Retrieve multiple documents)
   // ---------------------------------------------------------------------------
 
   server.registerTool(
@@ -463,7 +463,7 @@ Intent-aware lex (C++ performance, not sports):
         if (result.skipped) {
           content.push({
             type: "text",
-            text: `[SKIPPED: ${result.doc.displayPath} - ${result.skipReason}. Use 'qmd_get' with file="${result.doc.displayPath}" to retrieve.]`,
+            text: `[SKIPPED: ${result.doc.displayPath} - ${result.skipReason}. Use 'query_get' with file="${result.doc.displayPath}" to retrieve.]`,
           });
           continue;
         }
@@ -486,7 +486,7 @@ Intent-aware lex (C++ performance, not sports):
         content.push({
           type: "resource",
           resource: {
-            uri: `qmd://${encodeQmdPath(result.doc.displayPath)}`,
+            uri: `query://${encodeQueryPath(result.doc.displayPath)}`,
             name: result.doc.displayPath,
             title: result.doc.title,
             mimeType: "text/markdown",
@@ -500,14 +500,14 @@ Intent-aware lex (C++ performance, not sports):
   );
 
   // ---------------------------------------------------------------------------
-  // Tool: qmd_status (Index status)
+  // Tool: query_status (Index status)
   // ---------------------------------------------------------------------------
 
   server.registerTool(
     "status",
     {
       title: "Index Status",
-      description: "Show the status of the QMD index: collections, document counts, and health information.",
+      description: "Show the status of the Query index: collections, document counts, and health information.",
       annotations: { readOnlyHint: true, openWorldHint: false },
       inputSchema: {},
     },
@@ -515,7 +515,7 @@ Intent-aware lex (C++ performance, not sports):
       const status: StatusResult = await store.getStatus();
 
       const summary = [
-        `QMD Index Status:`,
+        `Query Index Status:`,
         `  Total documents: ${status.totalDocuments}`,
         `  Needs embedding: ${status.needsEmbedding}`,
         `  Vector index: ${status.hasVectorIndex ? 'yes' : 'no'}`,
@@ -826,7 +826,7 @@ export async function startMcpHttpServer(port: number, options?: { quiet?: boole
     process.exit(0);
   });
 
-  log(`QMD MCP server listening on http://localhost:${actualPort}/mcp`);
+  log(`Query MCP server listening on http://localhost:${actualPort}/mcp`);
   return { httpServer, port: actualPort, stop };
 }
 

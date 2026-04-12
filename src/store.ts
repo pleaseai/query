@@ -1,8 +1,8 @@
 /**
- * QMD Store - Core data access and retrieval functions
+ * Query Store - Core data access and retrieval functions
  *
  * This module provides all database operations, search functions, and document
- * retrieval for QMD. It returns raw data structures that can be formatted by
+ * retrieval for Query. It returns raw data structures that can be formatted by
  * CLI or MCP consumers.
  *
  * Usage:
@@ -515,7 +515,7 @@ export function resolve(...paths: string[]): string {
   return finalPath;
 }
 
-// Flag to indicate production mode (set by qmd.ts at startup)
+// Flag to indicate production mode (set by query.ts at startup)
 let _productionMode = false;
 
 export function enableProductionMode(): void {
@@ -542,9 +542,9 @@ export function getDefaultDbPath(indexName: string = "index"): string {
   }
 
   const cacheDir = process.env.XDG_CACHE_HOME || resolve(homedir(), ".cache");
-  const qmdCacheDir = resolve(cacheDir, "qmd");
-  try { mkdirSync(qmdCacheDir, { recursive: true }); } catch { }
-  return resolve(qmdCacheDir, `${indexName}.sqlite`);
+  const queryCacheDir = resolve(cacheDir, "query");
+  try { mkdirSync(queryCacheDir, { recursive: true }); } catch { }
+  return resolve(queryCacheDir, `${indexName}.sqlite`);
 }
 
 export function getPwd(): string {
@@ -560,7 +560,7 @@ export function getRealPath(path: string): string {
 }
 
 // =============================================================================
-// Virtual Path Utilities (qmd://)
+// Virtual Path Utilities (query://)
 // =============================================================================
 
 export type VirtualPath = {
@@ -570,11 +570,11 @@ export type VirtualPath = {
 };
 
 /**
- * Normalize explicit virtual path formats to standard qmd:// format.
+ * Normalize explicit virtual path formats to standard query:// format.
  * Only handles paths that are already explicitly virtual:
- * - qmd://collection/path.md (already normalized)
- * - qmd:////collection/path.md (extra slashes - normalize)
- * - //collection/path.md (missing qmd: prefix - add it)
+ * - query://collection/path.md (already normalized)
+ * - query:////collection/path.md (extra slashes - normalize)
+ * - //collection/path.md (missing query: prefix - add it)
  *
  * Does NOT handle:
  * - collection/path.md (bare paths - could be filesystem relative)
@@ -583,19 +583,19 @@ export type VirtualPath = {
 export function normalizeVirtualPath(input: string): string {
   let path = input.trim();
 
-  // Handle qmd:// with extra slashes: qmd:////collection/path -> qmd://collection/path
-  if (path.startsWith('qmd:')) {
-    // Remove qmd: prefix and normalize slashes
+  // Handle query:// with extra slashes: query:////collection/path -> query://collection/path
+  if (path.startsWith('query:')) {
+    // Remove query: prefix and normalize slashes
     path = path.slice(4);
     // Remove leading slashes and re-add exactly two
     path = path.replace(/^\/+/, '');
-    return `qmd://${path}`;
+    return `query://${path}`;
   }
 
-  // Handle //collection/path (missing qmd: prefix)
+  // Handle //collection/path (missing query: prefix)
   if (path.startsWith('//')) {
     path = path.replace(/^\/+/, '');
-    return `qmd://${path}`;
+    return `query://${path}`;
   }
 
   // Return as-is for other cases (filesystem paths, docids, bare collection/path, etc.)
@@ -603,18 +603,18 @@ export function normalizeVirtualPath(input: string): string {
 }
 
 /**
- * Parse a virtual path like "qmd://collection-name/path/to/file.md"
+ * Parse a virtual path like "query://collection-name/path/to/file.md"
  * into its components.
- * Also supports collection root: "qmd://collection-name/" or "qmd://collection-name"
+ * Also supports collection root: "query://collection-name/" or "query://collection-name"
  */
 export function parseVirtualPath(virtualPath: string): VirtualPath | null {
   // Normalize the path first
   const normalized = normalizeVirtualPath(virtualPath);
   const [pathPart = normalized, queryString = ""] = normalized.split("?");
 
-  // Match: qmd://collection-name[/optional-path]
-  // Allows: qmd://name, qmd://name/, qmd://name/path
-  const match = pathPart.match(/^qmd:\/\/([^\/]+)\/?(.*)$/);
+  // Match: query://collection-name[/optional-path]
+  // Allows: query://name, query://name/, query://name/path
+  const match = pathPart.match(/^query:\/\/([^\/]+)\/?(.*)$/);
   if (!match?.[1]) return null;
   const indexName = new URLSearchParams(queryString).get("index")?.trim() || undefined;
   return {
@@ -628,14 +628,14 @@ export function parseVirtualPath(virtualPath: string): VirtualPath | null {
  * Build a virtual path from collection name and relative path.
  */
 export function buildVirtualPath(collectionName: string, path: string, indexName?: string): string {
-  const base = `qmd://${collectionName}/${path}`;
+  const base = `query://${collectionName}/${path}`;
   return indexName ? `${base}?index=${encodeURIComponent(indexName)}` : base;
 }
 
 /**
  * Check if a path is explicitly a virtual path.
  * Only recognizes explicit virtual path formats:
- * - qmd://collection/path.md
+ * - query://collection/path.md
  * - //collection/path.md
  *
  * Does NOT consider bare collection/path.md as virtual - that should be
@@ -644,10 +644,10 @@ export function buildVirtualPath(collectionName: string, path: string, indexName
 export function isVirtualPath(path: string): boolean {
   const trimmed = path.trim();
 
-  // Explicit qmd:// prefix (with any number of slashes)
-  if (trimmed.startsWith('qmd:')) return true;
+  // Explicit query:// prefix (with any number of slashes)
+  if (trimmed.startsWith('query:')) return true;
 
-  // //collection/path format (missing qmd: prefix)
+  // //collection/path format (missing query: prefix)
   if (trimmed.startsWith('//')) return true;
 
   return false;
@@ -762,7 +762,7 @@ function initializeDatabase(db: Database): void {
   `);
 
   // Documents table - file system layer mapping virtual paths to content hashes
-  // Collections are now managed in ~/.config/qmd/index.yml
+  // Collections are now managed in ~/.config/query/index.yml
   db.exec(`
     CREATE TABLE IF NOT EXISTS documents (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -1072,7 +1072,7 @@ function ensureVecTableInternal(db: Database, dimensions: number): void {
     if (existingDims !== null && existingDims !== dimensions) {
       throw new Error(
         `Embedding dimension mismatch: existing vectors are ${existingDims}d but the current model produces ${dimensions}d. ` +
-        `Run 'qmd embed -f' to re-embed with the new model.`
+        `Run 'query embed -f' to re-embed with the new model.`
       );
     }
     db.exec("DROP TABLE IF EXISTS vectors_vec");
@@ -1590,7 +1590,7 @@ export async function generateEmbeddings(
 
 /**
  * Create a new store instance with the given database path.
- * If no path is provided, uses the default path (~/.cache/qmd/index.sqlite).
+ * If no path is provided, uses the default path (~/.cache/query/index.sqlite).
  *
  * @param dbPath - Path to the SQLite database file
  * @returns Store instance with all methods bound to the database
@@ -2121,7 +2121,7 @@ export function findActiveDocument(
  * FTS entry. Embeddings are keyed by content hash, so the rename is
  * safe — no re-embedding required.
  *
- * @internal Used by reindexCollection and indexFiles during qmd update.
+ * @internal Used by reindexCollection and indexFiles during query update.
  * Returns null if the document does not exist under either path.
  */
 export function findOrMigrateLegacyDocument(
@@ -2428,7 +2428,7 @@ export function findDocumentByDocid(db: Database, docid: string): { filepath: st
 
   // Look up documents where hash starts with the short hash
   const doc = db.prepare(`
-    SELECT 'qmd://' || d.collection || '/' || d.path as filepath, d.hash
+    SELECT 'query://' || d.collection || '/' || d.path as filepath, d.hash
     FROM documents d
     WHERE d.hash LIKE ? AND d.active = 1
     LIMIT 1
@@ -2455,7 +2455,7 @@ export function findSimilarFiles(db: Database, query: string, maxDistance: numbe
 export function matchFilesByGlob(db: Database, pattern: string): { filepath: string; displayPath: string; bodyLength: number }[] {
   const allFiles = db.prepare(`
     SELECT
-      'qmd://' || d.collection || '/' || d.path as virtual_path,
+      'query://' || d.collection || '/' || d.path as virtual_path,
       LENGTH(content.doc) as body_length,
       d.path,
       d.collection
@@ -2539,11 +2539,11 @@ export function getContextForFile(db: Database, filepath: string): string | null
   // Get all collections from DB
   const collections = getStoreCollections(db);
 
-  // Parse virtual path format: qmd://collection/path
+  // Parse virtual path format: query://collection/path
   let collectionName: string | null = null;
   let relativePath: string | null = null;
 
-  const parsedVirtual = filepath.startsWith('qmd://') ? parseVirtualPath(filepath) : null;
+  const parsedVirtual = filepath.startsWith('query://') ? parseVirtualPath(filepath) : null;
   if (parsedVirtual) {
     collectionName = parsedVirtual.collectionName;
     relativePath = parsedVirtual.path;
@@ -3046,7 +3046,7 @@ export function searchFTS(db: Database, query: string, limit: number = 20, colle
       LIMIT ${ftsLimit}
     )
     SELECT
-      'qmd://' || d.collection || '/' || d.path as filepath,
+      'query://' || d.collection || '/' || d.path as filepath,
       d.collection || '/' || d.path as display_path,
       d.title,
       content.doc as body,
@@ -3106,7 +3106,7 @@ export async function searchVec(db: Database, query: string, model: string, limi
   // IMPORTANT: We use a two-step query approach here because sqlite-vec virtual tables
   // hang indefinitely when combined with JOINs in the same query. Do NOT try to
   // "optimize" this by combining into a single query with JOINs - it will break.
-  // See: https://github.com/tobi/qmd/pull/23
+  // See: https://github.com/pleaseai/query/pull/23
 
   // Step 1: Get vector matches from sqlite-vec (no JOINs allowed)
   const vecResults = db.prepare(`
@@ -3128,7 +3128,7 @@ export async function searchVec(db: Database, query: string, model: string, limi
       cv.hash || '_' || cv.seq as hash_seq,
       cv.hash,
       cv.pos,
-      'qmd://' || d.collection || '/' || d.path as filepath,
+      'query://' || d.collection || '/' || d.path as filepath,
       d.collection || '/' || d.path as display_path,
       d.title,
       content.doc as body
@@ -3475,7 +3475,7 @@ type DbDocRow = {
  * Returns document metadata without body by default.
  *
  * Supports:
- * - Virtual paths: qmd://collection/path/to/file.md
+ * - Virtual paths: query://collection/path/to/file.md
  * - Absolute paths: /path/to/file.md
  * - Relative paths: path/to/file.md
  * - Short docid: #abc123 (first 6 chars of hash)
@@ -3506,7 +3506,7 @@ export function findDocument(db: Database, filename: string, options: { includeB
   // Build computed columns
   // Note: absoluteFilepath is computed from YAML collections after query
   const selectCols = `
-    'qmd://' || d.collection || '/' || d.path as virtual_path,
+    'query://' || d.collection || '/' || d.path as virtual_path,
     d.collection || '/' || d.path as display_path,
     d.title,
     d.hash,
@@ -3521,7 +3521,7 @@ export function findDocument(db: Database, filename: string, options: { includeB
     SELECT ${selectCols}
     FROM documents d
     JOIN content ON content.hash = d.hash
-    WHERE 'qmd://' || d.collection || '/' || d.path = ? AND d.active = 1
+    WHERE 'query://' || d.collection || '/' || d.path = ? AND d.active = 1
   `).get(filepath) as DbDocRow | null;
 
   // Try fuzzy match by virtual path
@@ -3530,13 +3530,13 @@ export function findDocument(db: Database, filename: string, options: { includeB
       SELECT ${selectCols}
       FROM documents d
       JOIN content ON content.hash = d.hash
-      WHERE 'qmd://' || d.collection || '/' || d.path LIKE ? AND d.active = 1
+      WHERE 'query://' || d.collection || '/' || d.path LIKE ? AND d.active = 1
       LIMIT 1
     `).get(`%${filepath}`) as DbDocRow | null;
   }
 
   // Try to match by absolute path (requires looking up collection paths from DB)
-  if (!doc && !filepath.startsWith('qmd://')) {
+  if (!doc && !filepath.startsWith('query://')) {
     const collections = getStoreCollections(db);
     for (const coll of collections) {
       let relativePath: string | null = null;
@@ -3568,7 +3568,7 @@ export function findDocument(db: Database, filename: string, options: { includeB
   }
 
   // Get context using virtual path
-  const virtualPath = doc.virtual_path || `qmd://${doc.collection}/${doc.display_path}`;
+  const virtualPath = doc.virtual_path || `query://${doc.collection}/${doc.display_path}`;
   const context = getContextForFile(db, virtualPath);
 
   return {
@@ -3596,12 +3596,12 @@ export function getDocumentBody(db: Database, doc: DocumentResult | { filepath: 
   let row: { body: string } | null = null;
 
   // Try virtual path first
-  if (filepath.startsWith('qmd://')) {
+  if (filepath.startsWith('query://')) {
     row = db.prepare(`
       SELECT content.doc as body
       FROM documents d
       JOIN content ON content.hash = d.hash
-      WHERE 'qmd://' || d.collection || '/' || d.path = ? AND d.active = 1
+      WHERE 'query://' || d.collection || '/' || d.path = ? AND d.active = 1
     `).get(filepath) as { body: string } | null;
   }
 
@@ -3650,7 +3650,7 @@ export function findDocuments(
 
   const bodyCol = options.includeBody ? `, content.doc as body` : ``;
   const selectCols = `
-    'qmd://' || d.collection || '/' || d.path as virtual_path,
+    'query://' || d.collection || '/' || d.path as virtual_path,
     d.collection || '/' || d.path as display_path,
     d.title,
     d.hash,
@@ -3670,14 +3670,14 @@ export function findDocuments(
         SELECT ${selectCols}
         FROM documents d
         JOIN content ON content.hash = d.hash
-        WHERE 'qmd://' || d.collection || '/' || d.path = ? AND d.active = 1
+        WHERE 'query://' || d.collection || '/' || d.path = ? AND d.active = 1
       `).get(name) as DbDocRow | null;
       if (!doc) {
         doc = db.prepare(`
           SELECT ${selectCols}
           FROM documents d
           JOIN content ON content.hash = d.hash
-          WHERE 'qmd://' || d.collection || '/' || d.path LIKE ? AND d.active = 1
+          WHERE 'query://' || d.collection || '/' || d.path LIKE ? AND d.active = 1
           LIMIT 1
         `).get(`%${name}`) as DbDocRow | null;
       }
@@ -3705,7 +3705,7 @@ export function findDocuments(
       SELECT ${selectCols}
       FROM documents d
       JOIN content ON content.hash = d.hash
-      WHERE 'qmd://' || d.collection || '/' || d.path IN (${placeholders}) AND d.active = 1
+      WHERE 'query://' || d.collection || '/' || d.path IN (${placeholders}) AND d.active = 1
     `).all(...virtualPaths) as DbDocRow[];
   }
 
@@ -3713,7 +3713,7 @@ export function findDocuments(
 
   for (const row of fileRows) {
     // Get context using virtual path
-    const virtualPath = row.virtual_path || `qmd://${row.collection}/${row.display_path}`;
+    const virtualPath = row.virtual_path || `query://${row.collection}/${row.display_path}`;
     const context = getContextForFile(db, virtualPath);
 
     if (row.body_length > maxBytes) {
@@ -3969,7 +3969,7 @@ export interface HybridQueryOptions {
 }
 
 export interface HybridQueryResult {
-  file: string;             // internal filepath (qmd://collection/path)
+  file: string;             // internal filepath (query://collection/path)
   displayPath: string;
   title: string;
   body: string;             // full document body (for snippet extraction)
@@ -4362,7 +4362,7 @@ export async function vectorSearchQuery(
 
 /**
  * A single sub-search in a structured search request.
- * Matches the format used in QMD training data.
+ * Matches the format used in Query training data.
  */
 export interface StructuredSearchOptions {
   collections?: string[];   // Filter to specific collections (OR match)

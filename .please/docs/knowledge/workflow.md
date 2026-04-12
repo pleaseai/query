@@ -67,7 +67,7 @@ bun install
 ### Daily Development
 
 ```bash
-bun src/cli/qmd.ts <command>   # Run from source
+bun src/cli/query.ts <command>   # Run from source
 ```
 
 ### Testing
