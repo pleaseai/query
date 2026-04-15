@@ -1,0 +1,30 @@
+src/providers/tei-provider.ts
+  ec4395933ef54fd8 65-69
+src/providers/tei-provider.test.ts
+  ec4395933ef54fd8 326-342
+.please/docs/tracks/completed/tei-embedding-support-20260415/plan.md
+  ec4395933ef54fd8 57
+README.md
+  ec4395933ef54fd8 450
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8",
+  "base_commit_sha": "cc40cb32e50f29fbb8e92839051bc7e86c5d35a5",
+  "prompts": {
+    "ec4395933ef54fd8": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "68d0a571-3a39-451a-b1ed-10a5c937f5ad",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee",
+      "messages": [],
+      "total_additions": 24,
+      "total_deletions": 3,
+      "accepted_lines": 959,
+      "overriden_lines": 1,
+      "messages_url": "https://usegitai.com/cas/21a9730d2e34c7b5a38dc4c4f3080e24e303a2f909602240e68ba6317deb8b53"
+    }
+  }
+}
