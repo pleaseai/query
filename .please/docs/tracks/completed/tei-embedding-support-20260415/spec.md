@@ -18,8 +18,8 @@ Hugging Face Text Embeddings Inference (TEI) 서버의 native API 형식을 지�
 - [ ] FR-2: `embed(text)` / `embedBatch(texts)`는 TEI `POST /embed`에 `{inputs, truncate, truncation_direction, normalize, prompt_name}` payload로 요청하고 `EmbeddingResult`로 변환한다
 - [ ] FR-3: `rerank(query, documents)`는 TEI `POST /rerank`에 `{query, texts, truncate, raw_scores}` payload로 요청하고 `RerankResult`로 변환한다
 - [ ] FR-4: 생성자 옵션으로 `baseUrl`(필수), `timeoutMs`, `maxBatchSize`, `embed`/`rerank` 기본 옵션(`truncate`, `truncationDirection`, `normalize`, `promptName`)을 받는다
-- [ ] FR-5: `modelExists(model)`은 TEI `GET /info`를 호출하여 `ModelInfo`(로드된 model_id와 임베딩 차원)를 반환한다
-- [ ] FR-6: `generate` / `expandQuery`는 TEI가 지원하지 않으므로 `null` 또는 빈 배열을 반환하여 상위 엔진이 gracefully degrade한다
+- [ ] FR-5: `modelExists(model)`은 TEI `GET /info`를 호출하여 `ModelInfo`(`name`은 로드된 `model_id`, 성공 시 `exists: true` / 실패 시 `exists: false`)를 반환한다
+- [ ] FR-6: TEI가 지원하지 않는 메서드는 graceful degrade — `generate`는 `null` 반환, `expandQuery`는 원본 쿼리를 lex/vec `Queryable` 쌍으로 반환하여 상위 검색 엔진이 LLM 합성 쿼리 없이 진행 가능
 - [ ] FR-7: 네트워크 실패 / 413 / 422 / 429 / 5xx 시 LLMProvider 규약에 따라 `null`을 반환하고 stderr에 경고를 기록한다
 
 ### Non-functional Requirements

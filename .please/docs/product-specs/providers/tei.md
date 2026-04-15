@@ -61,7 +61,7 @@ The system MUST accept `baseUrl` (required), `timeoutMs`, `maxBatchSize`, and em
 
 ### Requirement: modelExists calls TEI /info
 
-The system MUST implement `modelExists(model)` by calling TEI `GET /info` and returning `ModelInfo` (loaded model_id and embedding dimensions).
+The system MUST implement `modelExists(model)` by calling TEI `GET /info` and returning `ModelInfo` populated from the loaded `model_id` (used as `name`) with `exists: true` on success or `exists: false` on failure.
 
 #### Scenario: modelExists returns loaded model info
 
@@ -71,7 +71,7 @@ The system MUST implement `modelExists(model)` by calling TEI `GET /info` and re
 
 ### Requirement: generate and expandQuery degrade gracefully
 
-The system MUST return `null` or empty array from `generate` / `expandQuery` since TEI does not support them, allowing the upstream engine to degrade gracefully.
+The system MUST degrade gracefully when TEI cannot perform the operation: `generate` returns `null`, and `expandQuery` returns the original query as both a lexical (`{type: 'lex'}`) and vector (`{type: 'vec'}`) `Queryable` pair so the upstream search engine can proceed without LLM-synthesized alternatives.
 
 #### Scenario: unsupported methods degrade
 
