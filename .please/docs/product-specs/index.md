@@ -1,6 +1,7 @@
 # Product Specs Index
 
-> Auto-maintained by /please:spec --product.
+> Auto-maintained by /please:sync-specs.
 
-| Spec | Feature | Created | Related Tracks |
-|------|---------|---------|----------------|
+| Spec | Domain | Feature | Created | Related Tracks |
+|------|--------|---------|---------|----------------|
+| SPEC-001 | providers | tei | 2026-04-15 | ["tei-embedding-support-20260415"] |

@@ -14,6 +14,9 @@
   - Default embedding: embeddinggemma-300M
   - Default reranker: qwen3-reranker-0.6b
   - Default query expansion: qmd-query-expansion-1.7B
+- **TEI** (optional, self-hosted): Hugging Face Text Embeddings Inference native API
+  - Endpoints: `/embed`, `/rerank`, `/info`
+  - fetch-based, no AI SDK dependency
 
 ## Database
 - **SQLite**: better-sqlite3 (Node.js) / bun:sqlite (Bun)
