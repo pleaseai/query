@@ -1,0 +1,30 @@
+.please/docs/tracks/active/tei-embedding-support-20260415/plan.md
+  ec4395933ef54fd8 1-76
+.please/docs/tracks/active/tei-embedding-support-20260415/spec.md
+  ec4395933ef54fd8 1-53
+.please/docs/tracks/active/tei-embedding-support-20260415/metadata.json
+  ec4395933ef54fd8 1-11
+.please/docs/tracks.jsonl
+  ec4395933ef54fd8 2
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8",
+  "base_commit_sha": "73b457ce723f9e3cfd5fb75b0e0cc9083c034d7a",
+  "prompts": {
+    "ec4395933ef54fd8": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "68d0a571-3a39-451a-b1ed-10a5c937f5ad",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee",
+      "messages": [],
+      "total_additions": 145,
+      "total_deletions": 4,
+      "accepted_lines": 141,
+      "overriden_lines": 0,
+      "messages_url": "https://usegitai.com/cas/3c994d7510fd351cc86b5dad2771c2dc1e5130563ddaecec112cb7ed7f93e5ff"
+    }
+  }
+}
