@@ -50,6 +50,7 @@ For understanding the public API:
 For understanding AI SDK integration:
 
 - `src/providers/ai-sdk-provider.ts` — `AISDKProvider` class implementing `LLMProvider` using Vercel AI SDK's `embed()`, `embedMany()`, `rerank()`, and `generateText()`.
+- `src/providers/tei-provider.ts` — `TEIProvider` class implementing `LLMProvider` against a self-hosted Hugging Face Text Embeddings Inference server via its native `/embed` and `/rerank` endpoints (no AI SDK dependency).
 - `src/providers/types.ts` — `LLMProvider` interface that any backend must implement.
 
 For understanding the CLI:
@@ -62,7 +63,7 @@ For understanding the CLI:
 |--------|---------|-----------|------------|-------------|
 | `src/store.ts` | Search engine core: indexing, chunking, BM25, vector search, RRF fusion, reranking | `store.ts` | `db`, `llm`, `collections`, `ast` | `index`, `cli`, `mcp` |
 | `src/llm.ts` | LLM abstraction: embedding, generation, reranking via node-llama-cpp | `llm.ts` | `node-llama-cpp` | `store`, `cli` |
-| `src/providers/` | AI SDK provider: cloud-based embedding, reranking, generation | `ai-sdk-provider.ts`, `types.ts` | `ai` (Vercel AI SDK) | `llm` (planned) |
+| `src/providers/` | Pluggable LLM providers: AI SDK (cloud) and TEI (self-hosted HTTP) | `ai-sdk-provider.ts`, `tei-provider.ts`, `tei-types.ts`, `types.ts` | `ai` (Vercel AI SDK), built-in `fetch` | `llm` (planned) |
 | `src/index.ts` | SDK public API: `QueryStore` wrapper with async methods | `index.ts` | `store`, `llm`, `collections` | `cli`, `mcp`, `bench` |
 | `src/db.ts` | SQLite compatibility layer: Bun/Node.js, sqlite-vec extension loading | `db.ts` | `better-sqlite3`, `sqlite-vec` | `store` |
 | `src/collections.ts` | Collection & context config: YAML parsing, path management | `collections.ts` | `yaml` | `store`, `index`, `cli` |

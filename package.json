@@ -12,9 +12,9 @@
     }
   },
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
-    "test": "vitest run --reporter=verbose test/",
-    "typecheck": "tsc --noEmit"
+    "build": "bunx tsc -p tsconfig.build.json",
+    "test": "bunx vitest run --reporter=verbose",
+    "typecheck": "bunx tsc --noEmit"
   },
   "dependencies": {
     "@ai-sdk/cohere": "^1.0.0",

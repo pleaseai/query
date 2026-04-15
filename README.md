@@ -443,6 +443,44 @@ Query uses Vercel AI SDK for model inference. Configure providers as needed:
 | OpenAI | `@ai-sdk/openai` | Embedding, generation |
 | Cohere | `@ai-sdk/cohere` | Reranking |
 | Local GGUF | `node-llama-cpp` (optional) | Offline embedding, reranking, generation |
+| Hugging Face TEI | built-in (self-hosted) | Embedding, reranking via native `/embed` and `/rerank` |
+
+### Hugging Face TEI (Text Embeddings Inference)
+
+Query ships with a built-in `TEIProvider` that talks to a self-hosted [Text Embeddings Inference](https://github.com/huggingface/text-embeddings-inference) server using its native API. No AI SDK or OpenAI-compatible shim is involved — requests go straight to `/embed` and `/rerank`, which lets you pass TEI-specific options like `truncate_direction` and `prompt_name`.
+
+Start a TEI server (CPU image shown):
+
+```sh
+docker run --rm -p 8080:80 \
+  ghcr.io/huggingface/text-embeddings-inference:cpu-latest \
+  --model-id BAAI/bge-small-en-v1.5
+```
+
+Use it from your code:
+
+```typescript
+import { TEIProvider } from '@pleaseai/query'
+
+const tei = new TEIProvider({
+  baseUrl: 'http://localhost:8080',
+  // Defaults shown — tune per model:
+  truncate: true,
+  truncationDirection: 'Right',
+  normalize: true,
+  // promptName: 'query',          // for E5/BGE-style prompt prefixes
+  // maxBatchSize: 32,
+  // timeoutMs: 30_000,
+})
+
+const vector = await tei.embed('authentication flow')
+const ranked = await tei.rerank('rate limiting', [
+  { file: 'a.md', text: 'Throttle requests per minute.' },
+  { file: 'b.md', text: 'User sessions expire after 30 days.' },
+])
+```
+
+The provider is self-hosted first-class: no API key handling is built in, and non-2xx responses / network failures return `null` so the search pipeline falls back to BM25-only results.
 
 ### GGUF Models (Optional, via node-llama-cpp)
 

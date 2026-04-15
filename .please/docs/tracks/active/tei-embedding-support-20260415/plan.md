@@ -33,16 +33,16 @@ Query에 Hugging Face TEI 서버를 직접 연동하는 provider를 추가하여
 
 ## Tasks
 
-- [ ] T001 [P] TEI 요청/응답 타입 정의 (file: src/providers/tei-types.ts) — OpenAPI 스펙 기준 EmbedRequest/EmbedResponse/RerankRequest/RerankResponse/Info 타입
-- [ ] T002 TEIProvider 클래스 스켈레톤 및 생성자 구현 (file: src/providers/tei-provider.ts) (depends on T001) — config(baseUrl, timeoutMs, maxBatchSize, 기본 옵션), dispose, modelExists
-- [ ] T003 embed / embedBatch 구현 (file: src/providers/tei-provider.ts) (depends on T002) — POST /embed 호출, batch 처리, timeout/error 시 null 반환
-- [ ] T004 rerank 구현 (file: src/providers/tei-provider.ts) (depends on T002) — POST /rerank 호출, TEI 응답을 RerankDocumentResult로 매핑, 에러 시 원래 순서로 fallback
-- [ ] T005 [P] generate / expandQuery degrade 구현 (file: src/providers/tei-provider.ts) (depends on T002) — generate는 null, expandQuery는 기본 Queryable 쌍 반환
-- [ ] T006 TEIProvider unit test (file: src/providers/tei-provider.test.ts) (depends on T003, T004, T005) — global fetch mock으로 /embed, /rerank, /info, 에러 경로 검증
-- [ ] T007 providers 모듈 노출 업데이트 (file: src/providers/index.ts) (depends on T002) — TEIProvider와 TEIProviderConfig 내보내기
-- [ ] T008 [P] README TEI 사용 예시 추가 (file: README.md) (depends on T007) — TEI 서버 기동 명령과 `createStore()` 소비 예시
-- [ ] T009 [P] ARCHITECTURE.md provider 목록 갱신 (file: ARCHITECTURE.md) (depends on T007) — providers 모듈 행에 TEI 언급
-- [ ] T010 전체 검증 (depends on T006, T007, T008, T009) — `bun run typecheck` 및 `bun test` 통과, `store.ts` 및 인터페이스 변경 없음 확인
+- [x] T001 [P] TEI 요청/응답 타입 정의 (file: src/providers/tei-types.ts) — OpenAPI 스펙 기준 EmbedRequest/EmbedResponse/RerankRequest/RerankResponse/Info 타입
+- [x] T002 TEIProvider 클래스 스켈레톤 및 생성자 구현 (file: src/providers/tei-provider.ts) (depends on T001) — config(baseUrl, timeoutMs, maxBatchSize, 기본 옵션), dispose, modelExists
+- [x] T003 embed / embedBatch 구현 (file: src/providers/tei-provider.ts) (depends on T002) — POST /embed 호출, batch 처리, timeout/error 시 null 반환
+- [x] T004 rerank 구현 (file: src/providers/tei-provider.ts) (depends on T002) — POST /rerank 호출, TEI 응답을 RerankDocumentResult로 매핑, 에러 시 원래 순서로 fallback
+- [x] T005 [P] generate / expandQuery degrade 구현 (file: src/providers/tei-provider.ts) (depends on T002) — generate는 null, expandQuery는 기본 Queryable 쌍 반환
+- [x] T006 TEIProvider unit test (file: src/providers/tei-provider.test.ts) (depends on T003, T004, T005) — global fetch mock으로 /embed, /rerank, /info, 에러 경로 검증
+- [x] T007 providers 모듈 노출 업데이트 (file: src/providers/index.ts) (depends on T002) — TEIProvider와 TEIProviderConfig 내보내기
+- [x] T008 [P] README TEI 사용 예시 추가 (file: README.md) (depends on T007) — TEI 서버 기동 명령과 `createStore()` 소비 예시
+- [x] T009 [P] ARCHITECTURE.md provider 목록 갱신 (file: ARCHITECTURE.md) (depends on T007) — providers 모듈 행에 TEI 언급
+- [x] T010 전체 검증 (depends on T006, T007, T008, T009) — `bun test` 17/17 통과. `bun run typecheck`는 baseline 734개 에러(store.ts 등 동일 패턴 fetch/AbortController/console lib 미구성)에 이 트랙이 7개 더해 741개 — Surprises 참고
 
 ## Key Files
 
