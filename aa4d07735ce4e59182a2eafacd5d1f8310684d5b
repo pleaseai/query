@@ -1,0 +1,36 @@
+.please/docs/tracks/completed/tei-embedding-support-20260415/plan.md
+  ec4395933ef54fd8 77-103
+.please/docs/product-specs/index.md
+  ec4395933ef54fd8 3,5-7
+.please/docs/tracks.jsonl
+  ec4395933ef54fd8 2
+.please/docs/tracks/completed/tei-embedding-support-20260415/spec.md
+  ec4395933ef54fd8 1-53
+.please/docs/tracks/completed/tei-embedding-support-20260415/metadata.json
+  ec4395933ef54fd8 4,6,8
+.please/docs/product-specs/providers/tei.md
+  ec4395933ef54fd8 1-104
+.please/docs/knowledge/gotchas.md
+  ec4395933ef54fd8 1-24
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8",
+  "base_commit_sha": "aa4d07735ce4e59182a2eafacd5d1f8310684d5b",
+  "prompts": {
+    "ec4395933ef54fd8": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "68d0a571-3a39-451a-b1ed-10a5c937f5ad",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee",
+      "messages": [],
+      "total_additions": 319,
+      "total_deletions": 8,
+      "accepted_lines": 1070,
+      "overriden_lines": 0,
+      "messages_url": "https://usegitai.com/cas/1615208ebfbaf2380a4d457e3d0f89ca60133b65d21685c19775891ea84ce8e8"
+    }
+  }
+}
