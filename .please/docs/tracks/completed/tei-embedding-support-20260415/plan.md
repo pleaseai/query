@@ -54,7 +54,7 @@ Query에 Hugging Face TEI 서버를 직접 연동하는 provider를 추가하여
 ## Verification
 
 - **Unit**: `src/providers/tei-provider.test.ts` — fetch mock으로 각 메서드 정상 / 실패 경로 검증
-- **Type**: `bun run typecheck`는 사전 baseline 에러(store.ts 등 `lib` 미구성) 유지 — 트랙 기여분이 새 에러 클래스를 만들지 않음 (Surprises 참고)
+- **Type**: `bun run typecheck`는 baseline 734개 에러에서 741개(+7)로 증가했으나, 원인은 기존 `lib` 미구성 패턴의 확장으로 새로운 에러 클래스 추가는 아님 (Surprises 참고)
 - **Regression**: `bun test` 전체 통과, `store.ts` unit test 영향 없음
 - **Manual (optional)**: 로컬 TEI 컨테이너(`ghcr.io/huggingface/text-embeddings-inference:cpu-latest`) 기동 후 `baseUrl=http://localhost:8080`으로 수동 연결 확인
 
