@@ -60,10 +60,11 @@ Query에 Hugging Face TEI 서버를 직접 연동하는 provider를 추가하여
 
 ## Progress
 
-- [ ] Phase 1: 타입과 provider 스켈레톤 (T001, T002)
-- [ ] Phase 2: 핵심 메서드 구현 (T003, T004, T005)
-- [ ] Phase 3: 테스트 및 노출 (T006, T007)
-- [ ] Phase 4: 문서 및 검증 (T008, T009, T010)
+- [x] Phase 1: 타입과 provider 스켈레톤 (T001, T002)
+- [x] Phase 2: 핵심 메서드 구현 (T003, T004, T005)
+- [x] Phase 3: 테스트 및 노출 (T006, T007)
+- [x] Phase 4: 문서 및 검증 (T008, T009, T010)
+- [x] (2026-04-15 18:45 KST) Review fixes applied (SHA: `c46907e`)
 
 ## Decision Log
 
