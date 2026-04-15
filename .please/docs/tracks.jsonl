@@ -1,2 +1,2 @@
 {"id":"ai-sdk-provider-integration-20260412","type":"feature","status":"planned","phase":"spec","issue":"","created":"2026-04-12","section":"active"}
-{"id":"tei-embedding-support-20260415","type":"feature","status":"planned","phase":"spec","issue":"#1","created":"2026-04-15","section":"active"}
+{"id":"tei-embedding-support-20260415","type":"feature","status":"in_progress","phase":"implement","issue":"#1","created":"2026-04-15","section":"active"}
