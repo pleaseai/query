@@ -447,7 +447,7 @@ Query uses Vercel AI SDK for model inference. Configure providers as needed:
 
 ### Hugging Face TEI (Text Embeddings Inference)
 
-Query ships with a built-in `TEIProvider` that talks to a self-hosted [Text Embeddings Inference](https://github.com/huggingface/text-embeddings-inference) server using its native API. No AI SDK or OpenAI-compatible shim is involved — requests go straight to `/embed` and `/rerank`, which lets you pass TEI-specific options like `truncate_direction` and `prompt_name`.
+Query ships with a built-in `TEIProvider` that talks to a self-hosted [Text Embeddings Inference](https://github.com/huggingface/text-embeddings-inference) server using its native API. No AI SDK or OpenAI-compatible shim is involved — requests go straight to `/embed` and `/rerank`, which lets you pass TEI-specific options like `truncation_direction` and `prompt_name`.
 
 Start a TEI server (CPU image shown):
 

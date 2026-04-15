@@ -323,6 +323,23 @@ describe('TEIProvider', () => {
     })
   })
 
+  describe('constructor validation', () => {
+    it('throws when maxBatchSize is zero', () => {
+      expect(() => new TEIProvider({ baseUrl: 'http://tei.local', maxBatchSize: 0 }))
+        .toThrow(/maxBatchSize must be a positive integer/)
+    })
+
+    it('throws when maxBatchSize is negative', () => {
+      expect(() => new TEIProvider({ baseUrl: 'http://tei.local', maxBatchSize: -3 }))
+        .toThrow(/maxBatchSize must be a positive integer/)
+    })
+
+    it('throws when maxBatchSize is not an integer', () => {
+      expect(() => new TEIProvider({ baseUrl: 'http://tei.local', maxBatchSize: 1.5 }))
+        .toThrow(/maxBatchSize must be a positive integer/)
+    })
+  })
+
   describe('baseUrl handling', () => {
     it('trims trailing slash from baseUrl', async () => {
       const fetchMock = makeFetchMock((url) => {

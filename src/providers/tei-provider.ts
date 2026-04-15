@@ -62,7 +62,11 @@ export class TEIProvider implements LLMProvider {
     }
     this.baseUrl = config.baseUrl.replace(/\/+$/, '')
     this.timeoutMs = config.timeoutMs ?? DEFAULT_TIMEOUT_MS
-    this.maxBatchSize = config.maxBatchSize ?? DEFAULT_MAX_BATCH_SIZE
+    const batchSize = config.maxBatchSize ?? DEFAULT_MAX_BATCH_SIZE
+    if (!Number.isInteger(batchSize) || batchSize < 1) {
+      throw new Error(`TEIProvider: maxBatchSize must be a positive integer, received ${batchSize}`)
+    }
+    this.maxBatchSize = batchSize
     this.modelName = config.modelName ?? 'tei'
     this.embedDefaults = {
       truncate: config.truncate ?? true,
