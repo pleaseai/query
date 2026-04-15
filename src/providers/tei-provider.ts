@@ -196,7 +196,14 @@ export class TEIProvider implements LLMProvider {
         console.error(`[TEIProvider] ${init.method ?? 'GET'} ${path} failed: ${response.status} ${response.statusText}`)
         return null
       }
-      return (await response.json()) as T
+      try {
+        return (await response.json()) as T
+      }
+      catch (parseError) {
+        const message = parseError instanceof Error ? parseError.message : String(parseError)
+        console.error(`[TEIProvider] ${init.method ?? 'GET'} ${path} invalid JSON body (HTTP ${response.status}): ${message}`)
+        return null
+      }
     }
     catch (error) {
       const message = error instanceof Error ? error.message : String(error)

@@ -63,6 +63,21 @@ describe('TEIProvider', () => {
       expect(warn).toHaveBeenCalled()
     })
 
+    it('returns null and logs an invalid-JSON message when the body is not JSON', async () => {
+      globalThis.fetch = makeFetchMock(() => new Response('<html>oops</html>', {
+        status: 200,
+        headers: { 'content-type': 'text/html' },
+      })) as unknown as typeof globalThis.fetch
+      const errorLog = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const provider = new TEIProvider({ baseUrl: 'http://tei.local' })
+
+      const result = await provider.embed('hello')
+
+      expect(result).toBeNull()
+      const messages = errorLog.mock.calls.map((call) => String(call[0]))
+      expect(messages.some((m) => m.includes('invalid JSON body'))).toBe(true)
+    })
+
     it('returns null when fetch rejects (network failure)', async () => {
       globalThis.fetch = vi.fn(async () => {
         throw new Error('ECONNREFUSED')
@@ -150,6 +165,19 @@ describe('TEIProvider', () => {
       expect(results.every((r) => r !== null)).toBe(true)
     })
 
+    it('keeps successful entries as null when the server returns fewer vectors than inputs', async () => {
+      const fetchMock = makeFetchMock(() => jsonResponse([[1]]))
+      globalThis.fetch = fetchMock as unknown as typeof globalThis.fetch
+
+      const provider = new TEIProvider({ baseUrl: 'http://tei.local' })
+      const results = await provider.embedBatch(['a', 'b', 'c'])
+
+      expect(results).toHaveLength(3)
+      expect(results[0]).toEqual({ embedding: [1], model: 'tei' })
+      expect(results[1]).toBeNull()
+      expect(results[2]).toBeNull()
+    })
+
     it('returns null entries for a failed batch and keeps successful ones', async () => {
       let call = 0
       const fetchMock = makeFetchMock((_url, init) => {
@@ -218,6 +246,26 @@ describe('TEIProvider', () => {
       expect(result.model).toBe('none')
       expect(result.results.map((r) => r.file)).toEqual(['a.md', 'b.md'])
       expect(result.results[0].score).toBeGreaterThan(result.results[1].score)
+    })
+
+    it('drops out-of-range indices returned by the server', async () => {
+      globalThis.fetch = makeFetchMock(() => jsonResponse([
+        { index: 0, score: 0.9 },
+        { index: -1, score: 0.8 },
+        { index: 5, score: 0.7 },
+        { index: 1, score: 0.5 },
+      ])) as unknown as typeof globalThis.fetch
+
+      const provider = new TEIProvider({ baseUrl: 'http://tei.local' })
+      const result = await provider.rerank('q', [
+        { file: 'a.md', text: 'a' },
+        { file: 'b.md', text: 'b' },
+      ])
+
+      expect(result.results).toEqual([
+        { file: 'a.md', score: 0.9, index: 0 },
+        { file: 'b.md', score: 0.5, index: 1 },
+      ])
     })
 
     it('returns empty results when given empty documents', async () => {
