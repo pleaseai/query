@@ -1,0 +1,26 @@
+.please/docs/tracks/active/tei-embedding-support-20260415/metadata.json
+  ec4395933ef54fd8 4
+.please/docs/tracks.jsonl
+  ec4395933ef54fd8 2
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8",
+  "base_commit_sha": "49e68847b9e37398054cbef429ca463dea3811c9",
+  "prompts": {
+    "ec4395933ef54fd8": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "68d0a571-3a39-451a-b1ed-10a5c937f5ad",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Minsu Lee",
+      "messages": [],
+      "total_additions": 2,
+      "total_deletions": 2,
+      "accepted_lines": 2,
+      "overriden_lines": 0,
+      "messages_url": "https://usegitai.com/cas/91070a841db8f1f23b974e326bb7e3ef9290a2ede4ee3f7caac7763c8ca4be86"
+    }
+  }
+}
