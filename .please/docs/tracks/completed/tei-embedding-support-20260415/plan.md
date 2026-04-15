@@ -74,4 +74,30 @@ Query에 Hugging Face TEI 서버를 직접 연동하는 provider를 추가하여
 
 ## Surprises & Discoveries
 
-- (구현 중 발견되는 사항을 여기에 추가)
+- `bun run test`는 `node_modules/.bin/vitest`가 bun install 후에도 생성되지 않아 `vitest: command not found` 발생 → 스크립트를 `bunx vitest run`으로 변경하여 해결. `bunx tsc`, `bunx tsc -p`도 동일하게 수정
+- `tsc --noEmit` baseline 734개 에러 (store.ts 등에서 fetch/AbortController/console `lib` 미구성). 이 트랙이 동일 패턴을 따르므로 +7 ≈ 741개로 증가했으나 새로운 타입 에러 클래스는 아님. tsconfig `lib` 정비는 별도 트랙 권장
+- Review에서 발견: 2xx 응답의 non-JSON 바디를 transport 에러와 구분되지 않게 로깅. 내부 try/catch로 분리해 "invalid JSON body (HTTP N)" 로그로 교정
+
+## Outcomes & Retrospective
+
+### What Was Shipped
+
+- `TEIProvider` (fetch 기반, 0-dep) + TEI 타입 스키마 + 20개 unit test
+- README / ARCHITECTURE / tech-stack.md 갱신
+- Review fix: JSON parse 실패를 transport 에러와 구분하는 로그 + rerank OOB index / embedBatch 짧은 응답 방어 테스트
+
+### What Went Well
+
+- `AISDKProvider` 참고 구현이 있어서 패턴 복제가 간단했고, provider 경계(NFR-3: store.ts 무변경) 유지가 용이했음
+- `AbortController` + `finally` cleartimeout 패턴이 AI SDK의 retry/telemetry 없이도 타임아웃 안전성을 확보
+- 사전 배정된 `results[]` 배열로 `embedBatch`의 순서/부분실패 불변식을 단순하게 유지
+
+### What Could Improve
+
+- 초기 리뷰에서 2xx non-JSON 케이스를 놓쳤음. 다음부터는 fetch 래퍼 작성 시 "네트워크 실패 / HTTP 실패 / 파싱 실패" 3분기를 체크리스트화
+- `tsc --noEmit` baseline이 734개라는 사실이 트랙 중 드러남. baseline을 고정 수치로 record해두면 회귀 검출이 쉬움
+
+### Tech Debt Created
+
+- `tsconfig.json` `lib: ["ES2022"]`에 DOM/node 미포함으로 인한 734개 baseline — 별도 인프라 트랙에서 해결 권장
+- 인증/커스텀 헤더 미지원 (spec Out of Scope). TEI를 사내 게이트웨이 뒤에 둘 경우 추가 트랙 필요
